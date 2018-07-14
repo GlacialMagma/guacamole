@@ -1,0 +1,34 @@
+version: '3'
+services:
+    db:
+        image: mariadb:10.3
+        environment:
+            - MYSQL_DATABASE=guacamole_db
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+        volumes:
+            - ./init:/docker-entrypoint-initdb.d/:ro
+        networks:
+            - guacamole_net
+
+    guacd:
+        image: guacamole/guacd:0.9.14
+        networks:
+            - guacamole_net
+
+    guacamole:
+        image: guacamole/guacamole:0.9.14
+        environment:
+            - GUACD_HOSTNAME=guacd
+            - GUACD_PORT=4822
+            - MYSQL_HOSTNAME=db
+            - MYSQL_PORT=3306
+            - MYSQL_DATABASE=guacamole_db
+            - MYSQL_USER=guacamole_user
+            - MYSQL_PASSWORD=password
+        networks:
+            - guacamole_net
+        ports:
+            - "8080:8080"
+
+networks:
+    guacamole_net:
